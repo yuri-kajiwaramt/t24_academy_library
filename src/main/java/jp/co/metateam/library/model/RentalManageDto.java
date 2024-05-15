@@ -5,12 +5,15 @@ import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jp.co.metateam.library.values.RentalStatus;
 import lombok.Getter;
 import lombok.Setter;
 import java.util.Optional;
+
+
 
 /**
  * 貸出管理DTO
@@ -32,10 +35,12 @@ public class RentalManageDto {
 
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @NotNull(message="貸出予定日は必須です")
+    @FutureOrPresent(message= "貸出予定日は現在より後を指定してください")
     private Date expectedRentalOn;
 
     @DateTimeFormat(pattern="yyyy-MM-dd")
     @NotNull(message="返却予定日は必須です")
+    @FutureOrPresent(message = "返却予定日は現在よりも後を指定してください")
     private Date expectedReturnOn;
 
     private Timestamp rentaledAt;
@@ -49,27 +54,33 @@ public class RentalManageDto {
     private Account account;
 
     public Optional<String> isValidStatus(Integer preStatus) {
-        if(preStatus == RentalStatus.RENT_WAIT.getValue() && this.status == RentalStatus.RETURNED.getValue()){
-            return Optional.of ("貸出ステータスを「貸出待ち」から返却済みに変更することはできません");
-        }else if (preStatus == RentalStatus.RENTAlING.getValue() && this.status == RentalStatus.RENT_WAIT.getValue()) {
-            return Optional.of ("貸出ステータスを「貸出中」から「貸出待ち」に変更することはできません");
-        }else if (preStatus == RentalStatus.RENTAlING.getValue() && this.status == RentalStatus.CANCELED.getValue()) {
-            return Optional.of ("貸出ステータスを「貸出中」から「キャンセル」に変更することはできません");
-        }else if (preStatus == RentalStatus.CANCELED.getValue() && this.status == RentalStatus.RENT_WAIT.getValue()) {
-            return Optional.of("貸出ステータスを「キャンセル」から「貸出待ち」に変更することはできません");
-        }else if (preStatus == RentalStatus.CANCELED.getValue() && this.status == RentalStatus.RENTAlING.getValue()) {
-            return Optional.of("貸出ステータスを「キャンセル」から「貸出中」に変更することはできません");
-        }else if (preStatus == RentalStatus.CANCELED.getValue() && this.status == RentalStatus.RETURNED.getValue()) {
-            return Optional.of("貸出ステータスは「キャンセル」から「返却済み」に変更することはできません");
-        }else if (preStatus == RentalStatus.RETURNED.getValue() && this.status == RentalStatus.RENT_WAIT.getValue()) {
-            return Optional.of("貸出ステータスを「返却済み」から「貸出待ち」に変更することはできません");
-        }else if (preStatus == RentalStatus.RETURNED.getValue() && this.status == RentalStatus.RENTAlING.getValue()) {
-            return Optional.of("貸出ステータスを「返却済み」から「貸出中」に変更することはできません");
-        }else if (preStatus == RentalStatus.RETURNED.getValue() && this.status == RentalStatus.CANCELED.getValue()) {
-            return Optional.of("貸出ステータスを「返却済み」から「キャンセル」に変更することはできません");
-        } else {
-            return Optional.empty();
+        if (preStatus.equals(RentalStatus.RENT_WAIT.getValue())) {
+            if (this.status.equals(RentalStatus.RETURNED.getValue())) {
+                return Optional.of(String.format("貸し出しステータスを%sから%sに編集することはできません。", "貸出待ち", "返却済み"));
+            }
+        } else if (preStatus.equals(RentalStatus.RENTAlING.getValue())) {
+            if (this.status.equals(RentalStatus.RENT_WAIT.getValue())) {
+                return Optional.of(String.format("貸し出しステータスを%sから%sに編集することはできません。", "貸出中", "貸出待ち"));
+            } else if (this.status.equals(RentalStatus.CANCELED.getValue())) {
+                return Optional.of(String.format("貸し出しステータスを%sから%sに編集することはできません。", "貸出中", "キャンセル"));
+            }
+        } else if (preStatus.equals(RentalStatus.CANCELED.getValue())) {
+            if (this.status.equals(RentalStatus.RENT_WAIT.getValue())) {
+                return Optional.of(String.format("貸し出しステータスを%sから%sに編集することはできません。", "キャンセル", "貸出待ち"));
+            } else if (this.status.equals(RentalStatus.RENTAlING.getValue())) {
+                return Optional.of(String.format("貸し出しステータスを%sから%sに編集することはできません。", "キャンセル", "貸出中"));
+            } else if (this.status.equals(RentalStatus.RETURNED.getValue())) {
+                return Optional.of(String.format("貸し出しステータスを%sから%sに編集することはできません。", "キャンセル", "返却済み"));
+            }
+        } else if (preStatus.equals(RentalStatus.RETURNED.getValue())) {
+            if (this.status.equals(RentalStatus.RENT_WAIT.getValue())) {
+                return Optional.of(String.format("貸し出しステータスを%sから%sに編集することはできません。", "返却済み", "貸出待ち"));
+            } else if (this.status.equals(RentalStatus.RENTAlING.getValue())) {
+                return Optional.of(String.format("貸し出しステータスを%sから%sに編集することはできません。", "返却済み", "貸出中"));
+            } else if (this.status.equals(RentalStatus.CANCELED.getValue())) {
+                return Optional.of(String.format("貸し出しステータスを%sから%sに編集することはできません。", "返却済み", "キャンセル"));
+            }
         }
-   
+        return Optional.empty();
+      }
     }
-}

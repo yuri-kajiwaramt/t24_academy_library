@@ -44,15 +44,13 @@
                         <div class="error_msg" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></div>
                     </div>
                     <div class="mb30">
-                        <label class="input_title" for="stockMngNumber">在庫管理番号<span
-                            class="text-red asterisk">＊</span></label>
-                    <select id="stockMngNumber" class="form_input" name="stockId" required>
-                        <option value="">在庫管理番号を選択</option>
-                        <option th:each="stock : ${stockList}" th:value="${stock.id}"
-                            th:text="${stock.id + ' ' + stock.bookMst.title}"
-                            th:selected="${stock.id == rentalManageDto.stockId}"></option>
-                    </select>
-                    <div class="error_msg" th:if="${#fields.hasErrors('stockId')}" th:errors="*{stockId}"></div>
+                        <label for="bookSelector">在庫ステータス<span class="text-red asterisk">＊</span></label>
+                        <select id="bookSelector" class="form_input" name="status" required>
+                            <option value="">ステータスを選択</option>
+                            <option th:each="status : ${stockStatus}" th:value="${status.value}"
+                                th:text="${status.text}" th:selected="${status.value == stockDto.status}"></option>
+                        </select>
+                        <div class="error_msg" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></div>
                     </div>
                     <div class="btn_block">
                         <button type="submit" id="submit_btn">保存</button>

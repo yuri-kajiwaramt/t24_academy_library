@@ -104,10 +104,9 @@ public class RentalManageService {
                 throw new Exception("Stock not found.");
             }
 
-            RentalManage rentalManage = new RentalManage();
+            RentalManage rentalManage = findById(id);    
+
             rentalManage = setRentalStatusDate(rentalManage, rentalManageDto.getStatus());
-            
-            rentalManageDto.setId(rentalManage.getId());
             rentalManage.setAccount(account);
             rentalManage.setExpectedRentalOn(rentalManageDto.getExpectedRentalOn());
             rentalManage.setExpectedReturnOn(rentalManageDto.getExpectedReturnOn());
@@ -120,8 +119,6 @@ public class RentalManageService {
             throw e;
         }
     }
-
-
 }
 
 

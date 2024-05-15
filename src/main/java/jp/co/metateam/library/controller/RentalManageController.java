@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.time.LocalDate;
 
+import org.hibernate.jdbc.Expectation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -138,23 +139,19 @@ public class RentalManageController {
     @PostMapping("/rental/{id}/edit")
      public String update(@PathVariable("id") Long id, Model model, @Valid @ModelAttribute RentalManageDto rentalManageDto, BindingResult result, RedirectAttributes ra) {
         try {
-            RentalManage rentalManage = this.rentalManageService.findById(id); 
-            Optional <String> statusError  = rentalManageDto.isValidStatus(rentalManage.getStatus());
-            
-            
-            if(statusError.isPresent()) {
-                FieldError fieldError = new FieldError("rentalManageDto", "status",statusError.get());
-
-                result.addError(fieldError);
-
-                throw new Exception("Validation error.");
-
-            }
-                
-
             if (result.hasErrors()) {
                 throw new Exception("Validation error.");
             }
+
+            RentalManage rentalManage = this.rentalManageService.findById(id); 
+            Optional <String> statusError  = rentalManageDto.isValidStatus(rentalManage.getStatus());
+
+            if (statusError.isPresent()) {
+                FieldError fieldError = new FieldError("rentalManageDto", "status",statusError.get());
+                result.addError(fieldError);
+
+                throw new Exception("Validation error.");
+            } 
             // 更新
             rentalManageService.update(id, rentalManageDto);
 
@@ -174,7 +171,6 @@ public class RentalManageController {
 
             return "rental/edit";  
         }
-     }
-
+    }
  }
   
