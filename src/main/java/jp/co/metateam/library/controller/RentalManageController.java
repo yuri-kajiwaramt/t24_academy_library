@@ -111,9 +111,9 @@ public class RentalManageController {
     }
    
     @GetMapping("/rental/{id}/edit")
-    public String edit(@PathVariable("id") Long id, Model model) {
+    public String edit(@PathVariable("id") String id, Model model) {
         List<Account> accountList = this.accountService.findAll();
-        List<Stock> stockList = this.stockService.findAll();
+        List<Stock> stockList = this.stockService.findStockAvailableAll();
 
         model.addAttribute("accounts",accountList);
         model.addAttribute("stockList", stockList);
@@ -121,7 +121,7 @@ public class RentalManageController {
 
         if (!model.containsAttribute("rentalManageDto")) {
             RentalManageDto rentalManageDto = new RentalManageDto();
-            RentalManage rentalManage = this.rentalManageService.findById(id);
+            RentalManage rentalManage = this.rentalManageService.findById(Long.valueOf(id));
 
             rentalManageDto.setId(rentalManage.getId());
             rentalManageDto.setExpectedRentalOn(rentalManage.getExpectedRentalOn());
@@ -137,13 +137,13 @@ public class RentalManageController {
     }
 
     @PostMapping("/rental/{id}/edit")
-     public String update(@PathVariable("id") Long id, Model model, @Valid @ModelAttribute RentalManageDto rentalManageDto, BindingResult result, RedirectAttributes ra) {
+     public String update(@PathVariable("id") String id, Model model, @Valid @ModelAttribute RentalManageDto rentalManageDto, BindingResult result, RedirectAttributes ra) {
         try {
             if (result.hasErrors()) {
                 throw new Exception("Validation error.");
             }
 
-            RentalManage rentalManage = this.rentalManageService.findById(id); 
+            RentalManage rentalManage = this.rentalManageService.findById(Long.valueOf(id)); 
             Optional <String> statusError  = rentalManageDto.isValidStatus(rentalManage.getStatus());
 
             if (statusError.isPresent()) {
@@ -153,7 +153,7 @@ public class RentalManageController {
                 throw new Exception("Validation error.");
             } 
             // 更新
-            rentalManageService.update(id, rentalManageDto);
+            rentalManageService.update(Long.valueOf(id), rentalManageDto);
 
             return "redirect:/rental/index";
         } catch (Exception e) {
@@ -162,15 +162,8 @@ public class RentalManageController {
             ra.addFlashAttribute("rentalManageDto", rentalManageDto);
             ra.addFlashAttribute("org.springframework.validation.BindingResult.rentalManageDto", result);
 
-            List<Account> accountList = this.accountService.findAll();
-            List<Stock> stockList = this.stockService.findAll();
-
-            model.addAttribute("accounts",accountList);
-            model.addAttribute("stockList", stockList);
-            model.addAttribute("rentalStatus", RentalStatus.values());
-
-            return "rental/edit";  
+            return "redirect:/rental/{id}/edit";  
         }
     }
- }
+}
   
