@@ -83,6 +83,7 @@ public class RentalManageDto {
                 return Optional.of(String.format(errorMessage, RentalStatus.RETURNED.getText(), RentalStatus.CANCELED.getText()));
             }
         }
+        
         return Optional.empty();
     }
 }
